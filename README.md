@@ -60,38 +60,36 @@ The resulting application allows users to upload PDF documents, interact with th
 
 ## 🧩 System Architecture
 
-The architecture represents the implemented workflow from document ingestion and semantic indexing through document-specific retrieval, conversational generation, response streaming, and feedback-based evaluation.
-
-<p align="center">
-
-<img
-  src="./assets/architecture.svg"
-  alt="Retrieval-Augmented Generation system architecture"
-  width="900"
-/>
-
-</p>
-
----
-
-## 🔄 End-to-End Retrieval & Generation Flow
+At a conceptual level, an orchestration layer (LangChain in this implementation) sits between the retrieval tools that fetch relevant content and the LLM providers that generate answers, coordinating the two so that responses stay grounded in retrieved document context.
 
 <div align="center">
 
 ```mermaid
-graph LR
-    A[PDF Upload] --> B[Async Processing<br/>Celery]
-    B --> C[PDF Text Extraction<br/>PyPDF]
-    C --> D[Text Chunking +<br/>Metadata Assignment]
-    D --> E[OpenAI Embeddings]
-    E --> F[Pinecone Vector Store]
-    Q[User Query] --> G
-    F --> G[Document-Specific<br/>Semantic Retrieval]
-    G --> H[Retrieved Context +<br/>Conversation History]
-    H --> I[LangChain<br/>Conversational RAG]
-    I --> J[OpenAI Chat Model]
-    J --> K[Streamed Context-<br/>Aware Response]
-    K --> L[User Feedback &<br/>Component Scoring]
+graph TD
+    O["Orchestration Layer<br/>LangChain · Semantic Kernel · Native Code"]
+    O --> R["Retrieval Tools<br/>Knowledge Bases · APIs"]
+    O --> L["LLM Providers<br/>OpenAI · Anthropic · Self-Hosted"]
+```
+
+</div>
+
+---
+
+### 🔄 End-to-End Retrieval & Generation Flow
+
+<div align="center">
+
+```mermaid
+graph TD
+    A[PDF Upload] --> B[Async Processing<br/>Celery + PyPDF Extraction]
+    B --> C[Chunking + Embeddings<br/>OpenAI Embeddings]
+    C --> D[(Pinecone Vector Store)]
+    Q[User Query] --> E
+    D --> E[Document-Specific<br/>Semantic Retrieval]
+    E --> F[LangChain Conversational RAG<br/>Context + History]
+    F --> G[OpenAI Chat Model]
+    G --> H[Streamed Response]
+    H --> I[User Feedback &<br/>Component Scoring]
 ```
 
 </div>
@@ -100,15 +98,41 @@ graph LR
 
 ## ✨ Key Capabilities
 
-1. Document-Based Question Answering — Users can upload PDF documents and interact with their content through a conversational interface.
-2. Semantic Search — Document chunks are represented using OpenAI embeddings and retrieved through Pinecone according to semantic similarity rather than relying only on exact keyword matching.
-3. Conversational RAG — LangChain connects document retrieval, conversational memory, and language-model generation so that retrieved document context can be incorporated into the ongoing conversation.
-4. Document-Specific Retrieval — Retriever queries are scoped to the selected PDF using the document identifier, helping keep retrieval focused on the relevant document.
-5. Configurable Retrieval Depth — the implementation contains three Pinecone retriever configurations (pinecone_1, pinecone_2, pinecone_3, corresponding to k = 1, 2, and 3), allowing retrieval depth to be treated as an experimental parameter.
-6. Multiple Language Models — configurations are included for GPT-4 and GPT-3.5-Turbo.
-7. Conversational Memory — conversation messages are persisted through a SQL-backed message-history layer and exposed to the conversational retrieval pipeline.
-8. Streaming Responses — generated responses can be streamed from the backend to the frontend rather than waiting for the entire response to be generated.
-9. User Feedback & Component Scoring — users can provide positive or negative feedback on generated responses; the application maintains component-level scores for language models, retrievers, and memory components to support experimentation and comparison.
+1. **Document-Based Question Answering**
+
+   ↳ Users can upload PDF documents and interact with their content through a conversational interface.
+
+2. **Semantic Search**
+
+   ↳ Document chunks are represented using OpenAI embeddings and retrieved through Pinecone according to semantic similarity rather than relying only on exact keyword matching.
+
+3. **Conversational RAG**
+
+   ↳ LangChain connects document retrieval, conversational memory, and language-model generation so that retrieved document context can be incorporated into the ongoing conversation.
+
+4. **Document-Specific Retrieval**
+
+   ↳ Retriever queries are scoped to the selected PDF using the document identifier, helping keep retrieval focused on the relevant document.
+
+5. **Configurable Retrieval Depth**
+
+   ↳ The implementation contains three Pinecone retriever configurations (pinecone_1, pinecone_2, pinecone_3, corresponding to k = 1, 2, and 3), allowing retrieval depth to be treated as an experimental parameter.
+
+6. **Multiple Language Models**
+
+   ↳ Configurations are included for GPT-4 and GPT-3.5-Turbo.
+
+7. **Conversational Memory**
+
+   ↳ Conversation messages are persisted through a SQL-backed message-history layer and exposed to the conversational retrieval pipeline.
+
+8. **Streaming Responses**
+
+   ↳ Generated responses can be streamed from the backend to the frontend rather than waiting for the entire response to be generated.
+
+9. **User Feedback & Component Scoring**
+
+   ↳ Users can provide positive or negative feedback on generated responses; the application maintains component-level scores for language models, retrievers, and memory components to support experimentation and comparison.
 
 ---
 
@@ -158,7 +182,7 @@ The application processes uploaded PDF documents through an asynchronous workflo
 <div align="center">
 
 ```mermaid
-graph LR
+graph TD
     A[PDF] --> B[PyPDF Extraction]
     B --> C[Recursive Text Splitting]
     C --> D[Metadata Assignment]
@@ -185,7 +209,28 @@ Each document chunk is transformed into a vector representation using OpenAI emb
 
 ### 🔎 Vector Retrieval
 
-Pinecone provides the vector-search layer. The project contains three retrieval configurations — pinecone_1, pinecone_2, pinecone_3 — corresponding to retrieval depths of k = 1, k = 2, and k = 3.
+Pinecone provides the vector-search layer, exposed through three retrieval configurations that vary how many chunks are pulled per query:
+
+<div align="center">
+
+| Configuration | Retrieval Depth |
+|:---:|:---:|
+| `pinecone_1` | k = 1 |
+| `pinecone_2` | k = 2 |
+| `pinecone_3` | k = 3 |
+
+</div>
+
+<div align="center">
+
+```mermaid
+graph TD
+    P[(Pinecone Vector Store)] --> R1["pinecone_1<br/>k = 1 chunk retrieved"]
+    P --> R2["pinecone_2<br/>k = 2 chunks retrieved"]
+    P --> R3["pinecone_3<br/>k = 3 chunks retrieved"]
+```
+
+</div>
 
 ### 💬 Conversational Generation
 
@@ -194,7 +239,7 @@ The conversational pipeline can be summarized as:
 <div align="center">
 
 ```mermaid
-graph LR
+graph TD
     A[User Question] --> B[Document Retriever]
     B --> C[Relevant Context +<br/>Conversation History]
     C --> D[LangChain Retrieval Chain]
@@ -207,6 +252,21 @@ graph LR
 ### ⭐ Feedback-Based Evaluation
 
 The application records user feedback and maintains scores for configurable components: Language Model, Retriever, and Memory. This provides an experimental mechanism for comparing different RAG configurations based on observed user feedback.
+
+<div align="center">
+
+```mermaid
+graph TD
+    U[User Feedback<br/>Positive / Negative] --> S[Component Score Update]
+    S --> L[Language Model]
+    S --> R[Retriever]
+    S --> M[Memory]
+    L --> C[Updated Comparison<br/>Across Configurations]
+    R --> C
+    M --> C
+```
+
+</div>
 
 ---
 
@@ -449,7 +509,18 @@ The project includes a lightweight feedback mechanism for experimenting with dif
 
 </div>
 
-User feedback contributes to component scores that can be visualized and used as part of the experimental workflow.
+User feedback contributes to component scores that can be visualized and used as part of the experimental workflow. As an example, the published evaluation scored the three retriever configurations as follows:
+
+<div align="center">
+
+```mermaid
+pie title Retriever Score Distribution
+    "pinecone_1 - score 0.5" : 20
+    "pinecone_2 - score 1.0" : 40
+    "pinecone_3 - score 1.0" : 40
+```
+
+</div>
 
 ---
 
