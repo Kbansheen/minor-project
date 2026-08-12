@@ -382,8 +382,7 @@ PINECONE_ENV_NAME=your-pinecone-environment
 PINECONE_INDEX_NAME=your-pinecone-index
 ```
 
-> [!WARNING]
-> Never commit real API keys, passwords, service tokens, or other secrets to GitHub.
+
 
 ### ▶️ Run the Backend
 
