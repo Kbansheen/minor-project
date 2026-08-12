@@ -37,14 +37,14 @@ The system provides an end-to-end chat-with-PDF retrieval pipeline in which uplo
 
 | Stage | Purpose |
 |:---|:---|
-| 📄 Document ingestion | Upload and process PDF documents |
-| ✂️ Text chunking | Divide extracted content into retrieval-friendly segments |
-| 🧠 Semantic embeddings | Convert document chunks into vector representations |
-| 🔎 Vector retrieval | Retrieve semantically relevant document content |
-| 💬 Conversational RAG | Combine retrieved context with conversation history |
-| 🤖 LLM generation | Generate context-aware answers |
-| ⚡ Streaming | Stream generated responses to the frontend |
-| ⭐ Feedback | Capture user feedback for component-level evaluation |
+|  Document ingestion | Upload and process PDF documents |
+|  Text chunking | Divide extracted content into retrieval-friendly segments |
+|  Semantic embeddings | Convert document chunks into vector representations |
+|  Vector retrieval | Retrieve semantically relevant document content |
+|  Conversational RAG | Combine retrieved context with conversation history |
+|  LLM generation | Generate context-aware answers |
+|  Streaming | Stream generated responses to the frontend |
+|  Feedback | Capture user feedback for component-level evaluation |
 
 </div>
 
@@ -159,7 +159,7 @@ The research explores semantic search and Retrieval-Augmented Generation for doc
 
 ## ⚙️ Implementation Details
 
-### 📄 Document Processing
+### 1. Document Processing
 
 The application processes uploaded PDF documents through an asynchronous workflow:
 
@@ -187,11 +187,11 @@ The configured chunking parameters are:
 
 </div>
 
-### 🧠 Semantic Representation
+### 2. Semantic Representation
 
 Each document chunk is transformed into a vector representation using OpenAI embeddings. These representations form the basis for similarity-based retrieval.
 
-### 🔎 Vector Retrieval
+### 3. Vector Retrieval
 
 Pinecone provides the vector-search layer, exposed through three retrieval configurations that vary how many chunks are pulled per query:
 
@@ -233,7 +233,7 @@ graph TD
 
 </div>
 
-### ⭐ Feedback-Based Evaluation
+### 4. Feedback-Based Evaluation
 
 The application records user feedback and maintains scores for configurable components: Language Model, Retriever, and Memory. This provides an experimental mechanism for comparing different RAG configurations based on observed user feedback.
 
@@ -365,7 +365,7 @@ Initialize the database:
 flask --app app.web init-db
 ```
 
-### 🔐 Environment Configuration
+###  Environment Configuration
 
 Create a `.env` file in the project root:
 
@@ -488,7 +488,6 @@ Potential extensions include:
 
 ### 📚 Research · Engineering · Intelligent Retrieval
 
-*"Building intelligent software through research, engineering, and continuous learning."*
 
 ⭐ If you find my work interesting, feel free to explore my repositories or connect with me.
 
