@@ -6,12 +6,6 @@
 
 Semantic Search · Retrieval-Augmented Generation · Large Language Models · LangChain
 
-<br>
-
-[📄 Published Paper](https://doi.org/10.1063/5.0327593)
-&nbsp; • &nbsp;
-[💻 GitHub Repository](https://github.com/Kbansheen/minor-project)
-
 </div>
 
 ---
@@ -60,15 +54,15 @@ The resulting application allows users to upload PDF documents, interact with th
 
 ## 🧩 System Architecture
 
-At a conceptual level, an orchestration layer (LangChain in this implementation) sits between the retrieval tools that fetch relevant content and the LLM providers that generate answers, coordinating the two so that responses stay grounded in retrieved document context.
+LangChain acts as the orchestration layer, sitting between Pinecone (which fetches relevant document chunks) and OpenAI's chat models (which generate answers), coordinating the two so that responses stay grounded in retrieved document context.
 
 <div align="center">
 
 ```mermaid
 graph TD
-    O["Orchestration Layer<br/>LangChain · Semantic Kernel · Native Code"]
-    O --> R["Retrieval Tools<br/>Knowledge Bases · APIs"]
-    O --> L["LLM Providers<br/>OpenAI · Anthropic · Self-Hosted"]
+    O["Orchestration Layer\nLangChain"]
+    O --> R["Retrieval Tools\nPinecone Vector Store"]
+    O --> L["LLM Provider\nOpenAI · GPT-4 / GPT-3.5-Turbo"]
 ```
 
 </div>
@@ -81,15 +75,15 @@ graph TD
 
 ```mermaid
 graph TD
-    A[PDF Upload] --> B[Async Processing<br/>Celery + PyPDF Extraction]
-    B --> C[Chunking + Embeddings<br/>OpenAI Embeddings]
-    C --> D[(Pinecone Vector Store)]
-    Q[User Query] --> E
-    D --> E[Document-Specific<br/>Semantic Retrieval]
-    E --> F[LangChain Conversational RAG<br/>Context + History]
-    F --> G[OpenAI Chat Model]
-    G --> H[Streamed Response]
-    H --> I[User Feedback &<br/>Component Scoring]
+    A["PDF Upload"] --> B["Async Processing\nCelery + PyPDF Extraction"]
+    B --> C["Chunking + Embeddings\nOpenAI Embeddings"]
+    C --> D[("Pinecone Vector Store")]
+    Q["User Query"] --> E
+    D --> E["Document-Specific\nSemantic Retrieval"]
+    E --> F["LangChain Conversational\nRAG Context + History"]
+    F --> G["OpenAI Chat Model"]
+    G --> H["Streamed Response"]
+    H --> I["User Feedback &\nComponent Scoring"]
 ```
 
 </div>
@@ -98,41 +92,32 @@ graph TD
 
 ## ✨ Key Capabilities
 
-1. **Document-Based Question Answering**
+### 1. Document-Based Question Answering
+Users can upload PDF documents and interact with their content through a conversational interface.
 
-   ↳ Users can upload PDF documents and interact with their content through a conversational interface.
+### 2. Semantic Search
+Document chunks are represented using OpenAI embeddings and retrieved through Pinecone according to semantic similarity rather than relying only on exact keyword matching.
 
-2. **Semantic Search**
+### 3. Conversational RAG
+LangChain connects document retrieval, conversational memory, and language-model generation so that retrieved document context can be incorporated into the ongoing conversation.
 
-   ↳ Document chunks are represented using OpenAI embeddings and retrieved through Pinecone according to semantic similarity rather than relying only on exact keyword matching.
+### 4. Document-Specific Retrieval
+Retriever queries are scoped to the selected PDF using the document identifier, helping keep retrieval focused on the relevant document.
 
-3. **Conversational RAG**
+### 5. Configurable Retrieval Depth
+The implementation contains three Pinecone retriever configurations (pinecone_1, pinecone_2, pinecone_3, corresponding to k = 1, 2, and 3), allowing retrieval depth to be treated as an experimental parameter.
 
-   ↳ LangChain connects document retrieval, conversational memory, and language-model generation so that retrieved document context can be incorporated into the ongoing conversation.
+### 6. Multiple Language Models
+Configurations are included for GPT-4 and GPT-3.5-Turbo.
 
-4. **Document-Specific Retrieval**
+### 7. Conversational Memory
+Conversation messages are persisted through a SQL-backed message-history layer and exposed to the conversational retrieval pipeline.
 
-   ↳ Retriever queries are scoped to the selected PDF using the document identifier, helping keep retrieval focused on the relevant document.
+### 8. Streaming Responses
+Generated responses can be streamed from the backend to the frontend rather than waiting for the entire response to be generated.
 
-5. **Configurable Retrieval Depth**
-
-   ↳ The implementation contains three Pinecone retriever configurations (pinecone_1, pinecone_2, pinecone_3, corresponding to k = 1, 2, and 3), allowing retrieval depth to be treated as an experimental parameter.
-
-6. **Multiple Language Models**
-
-   ↳ Configurations are included for GPT-4 and GPT-3.5-Turbo.
-
-7. **Conversational Memory**
-
-   ↳ Conversation messages are persisted through a SQL-backed message-history layer and exposed to the conversational retrieval pipeline.
-
-8. **Streaming Responses**
-
-   ↳ Generated responses can be streamed from the backend to the frontend rather than waiting for the entire response to be generated.
-
-9. **User Feedback & Component Scoring**
-
-   ↳ Users can provide positive or negative feedback on generated responses; the application maintains component-level scores for language models, retrievers, and memory components to support experimentation and comparison.
+### 9. User Feedback & Component Scoring
+Users can provide positive or negative feedback on generated responses; the application maintains component-level scores for language models, retrievers, and memory components to support experimentation and comparison.
 
 ---
 
@@ -169,7 +154,6 @@ The research explores semantic search and Retrieval-Augmented Generation for doc
 ### Research Resources
 
 - 📄 [Read the Published Paper](https://doi.org/10.1063/5.0327593)
-- 💻 [View the Implementation Repository](https://github.com/Kbansheen/minor-project)
 
 ---
 
@@ -183,11 +167,11 @@ The application processes uploaded PDF documents through an asynchronous workflo
 
 ```mermaid
 graph TD
-    A[PDF] --> B[PyPDF Extraction]
-    B --> C[Recursive Text Splitting]
-    C --> D[Metadata Assignment]
-    D --> E[OpenAI Embeddings]
-    E --> F[Pinecone Vector Store]
+    A["PDF"] --> B["PyPDF Extraction"]
+    B --> C["Recursive Text Splitting"]
+    C --> D["Metadata Assignment"]
+    D --> E["OpenAI Embeddings"]
+    E --> F["Pinecone Vector Store"]
 ```
 
 </div>
@@ -225,9 +209,9 @@ Pinecone provides the vector-search layer, exposed through three retrieval confi
 
 ```mermaid
 graph TD
-    P[(Pinecone Vector Store)] --> R1["pinecone_1<br/>k = 1 chunk retrieved"]
-    P --> R2["pinecone_2<br/>k = 2 chunks retrieved"]
-    P --> R3["pinecone_3<br/>k = 3 chunks retrieved"]
+    P[("Pinecone Vector Store")] --> R1["pinecone_1\nk = 1 chunk retrieved"]
+    P --> R2["pinecone_2\nk = 2 chunks retrieved"]
+    P --> R3["pinecone_3\nk = 3 chunks retrieved"]
 ```
 
 </div>
@@ -240,11 +224,11 @@ The conversational pipeline can be summarized as:
 
 ```mermaid
 graph TD
-    A[User Question] --> B[Document Retriever]
-    B --> C[Relevant Context +<br/>Conversation History]
-    C --> D[LangChain Retrieval Chain]
-    D --> E[OpenAI Chat Model]
-    E --> F[Streamed Answer]
+    A["User Question"] --> B["Document Retriever"]
+    B --> C["Relevant Context +\nConversation History"]
+    C --> D["LangChain Retrieval Chain"]
+    D --> E["OpenAI Chat Model"]
+    E --> F["Streamed Answer"]
 ```
 
 </div>
@@ -257,11 +241,11 @@ The application records user feedback and maintains scores for configurable comp
 
 ```mermaid
 graph TD
-    U[User Feedback<br/>Positive / Negative] --> S[Component Score Update]
-    S --> L[Language Model]
-    S --> R[Retriever]
-    S --> M[Memory]
-    L --> C[Updated Comparison<br/>Across Configurations]
+    U["User Feedback\nPositive / Negative"] --> S["Component Score Update"]
+    S --> L["Language Model"]
+    S --> R["Retriever"]
+    S --> M["Memory"]
+    L --> C["Updated Comparison\nAcross Configurations"]
     R --> C
     M --> C
 ```
@@ -270,57 +254,10 @@ graph TD
 
 ---
 
-## 🖥️ Application Preview
-
-Actual screenshots will be added after the application is run and verified. No fabricated screenshots are included.
-
-### 📄 Document Upload
-
-<p align="center">
-
-<img
-  src="./assets/document-upload.png"
-  alt="Document upload interface"
-  width="850"
-/>
-
-</p>
-
-### 💬 Conversational Retrieval
-
-<p align="center">
-
-<img
-  src="./assets/chat-interface.png"
-  alt="Conversational retrieval interface"
-  width="850"
-/>
-
-</p>
-
-### 📊 Component Evaluation
-
-<p align="center">
-
-<img
-  src="./assets/evaluation.png"
-  alt="Component evaluation interface"
-  width="850"
-/>
-
-</p>
-
-> [!NOTE]
-> These screenshot files should be added only after capturing the actual application interface.
-
----
-
 ## 📁 Project Structure
 
 <details>
 <summary><strong>Click to expand the project structure</strong></summary>
-
-<br>
 
 ### Backend — `app/`
 
@@ -349,9 +286,6 @@ app/
     └── config/
 ```
 
-<br>
-<br>
-
 ### Frontend — `client/`
 
 ```text
@@ -362,9 +296,6 @@ client/
     ├── store/
     └── ...
 ```
-
-<br>
-<br>
 
 ### Root files
 
@@ -557,11 +488,7 @@ Potential extensions include:
 
 ### 📚 Research · Engineering · Intelligent Retrieval
 
-<br>
-
 *"Building intelligent software through research, engineering, and continuous learning."*
-
-<br>
 
 ⭐ If you find my work interesting, feel free to explore my repositories or connect with me.
 
