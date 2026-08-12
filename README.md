@@ -216,7 +216,7 @@ graph TD
 
 </div>
 
-### 💬 Conversational Generation
+### 4. Conversational Generation
 
 The conversational pipeline can be summarized as:
 
@@ -233,7 +233,7 @@ graph TD
 
 </div>
 
-### 4. Feedback-Based Evaluation
+### 5. Feedback-Based Evaluation
 
 The application records user feedback and maintains scores for configurable components: Language Model, Retriever, and Memory. This provides an experimental mechanism for comparing different RAG configurations based on observed user feedback.
 
