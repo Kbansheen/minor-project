@@ -156,13 +156,6 @@ Our main chat window supporting multi-turn conversation, real-time streamed toke
   <img src="./assets/chat-interface.png" alt="Conversational retrieval interface" width="850"/>
 </p>
 
-### 📊 Component Evaluation & Analytics
-Visualizes positive and negative user feedback over different language models, vector retrieves, and memory modules to mathematically determine the optimal RAG setup.
-
-<p align="center">
-  <img src="./assets/evaluation.png" alt="Component evaluation interface" width="850"/>
-</p>
-
 ---
 
 ## 🧩 Project Structure
@@ -353,6 +346,64 @@ graph TD
 ```
 
 </div>
+
+---
+
+## 📁 Project Structure
+
+<details>
+<summary><strong>Click to expand the project structure</strong></summary>
+
+### Backend — `app/`
+
+```text
+app/
+├── celery/
+│   └── worker.py
+│
+├── chat/
+│   ├── callbacks/
+│   ├── chains/
+│   ├── embeddings/
+│   ├── llms/
+│   ├── memories/
+│   ├── vector_stores/
+│   ├── chat.py
+│   ├── create_embeddings.py
+│   └── score.py
+│
+└── web/
+    ├── db/
+    ├── tasks/
+    ├── views/
+    ├── api.py
+    ├── files.py
+    └── config/
+```
+
+### Frontend — `client/`
+
+```text
+client/
+└── src/
+    ├── components/
+    ├── routes/
+    ├── store/
+    └── ...
+```
+
+### Root files
+
+```text
+tasks.py
+requirements.txt
+Pipfile
+Pipfile.lock
+test.py
+README.md
+```
+
+</details>
 
 ---
 
