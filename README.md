@@ -37,14 +37,14 @@ The system provides an end-to-end chat-with-PDF retrieval pipeline in which uplo
 
 | Stage | Purpose |
 |:---|:---|
-|  Document ingestion | Upload and process PDF documents |
-|  Text chunking | Divide extracted content into retrieval-friendly segments |
-|  Semantic embeddings | Convert document chunks into vector representations |
-|  Vector retrieval | Retrieve semantically relevant document content |
-|  Conversational RAG | Combine retrieved context with conversation history |
-|  LLM generation | Generate context-aware answers |
-|  Streaming | Stream generated responses to the frontend |
-|  Feedback | Capture user feedback for component-level evaluation |
+| 📄 Document ingestion | Upload and process PDF documents |
+| ✂️ Text chunking | Divide extracted content into retrieval-friendly segments |
+| 🧠 Semantic embeddings | Convert document chunks into vector representations |
+| 🔎 Vector retrieval | Retrieve semantically relevant document content |
+| 💬 Conversational RAG | Combine retrieved context with conversation history |
+| 🤖 LLM generation | Generate context-aware answers |
+| ⚡ Streaming | Stream generated responses to the frontend |
+| ⭐ Feedback | Capture user feedback for component-level evaluation |
 
 </div>
 
@@ -56,20 +56,37 @@ The resulting application allows users to upload PDF documents, interact with th
 
 LangChain acts as the orchestration layer, sitting between Pinecone (which fetches relevant document chunks) and OpenAI's chat models (which generate answers), coordinating the two so that responses stay grounded in retrieved document context.
 
-<div align="center">
+Our detailed system architecture, mapping the flow of document ingestion, vector databases, and LLM streaming, is structured as follows:
 
-```mermaid
-graph TD
-    O["Orchestration Layer\nLangChain"]
-    O --> R["Retrieval Tools\nPinecone Vector Store"]
-    O --> L["LLM Provider\nOpenAI · GPT-4 / GPT-3.5-Turbo"]
-```
-
-</div>
+<p align="center">
+  <img src="./assets/architecture-diagram.jpg" alt="Detailed System Architecture" width="850"/>
+</p>
 
 ---
 
-### 🔄 End-to-End Retrieval & Generation Flow
+## 📊 System Data Flow (DFD)
+
+Our system data flow is organized across hierarchical boundaries to model the interaction between the user, Svelte, Flask, Celery, Redis, and Pinecone:
+
+### Level 0 DFD: High-Level System Overview
+Provides a high-level abstraction of how the user uploads files, runs queries, and receives streamed answers from the core RAG system.
+
+<p align="center">
+  <img src="./assets/level-0-dfd.jpg" alt="Level 0 DFD Overview" width="700"/>
+</p>
+
+### Level 1 DFD: Detailed Sub-Process Interactions
+Deconstructs the main processes into granular sub-processes, mapping the asynchronous document chunking, embeddings generation, vector storage, and conversational retrieval tasks.
+
+<p align="center">
+  <img src="./assets/level-1-dfd.jpg" alt="Level 1 DFD Detail" width="850"/>
+</p>
+
+---
+
+## 🔄 End-to-End Retrieval & Generation Flow
+
+The runtime interaction and asynchronous processing workflow follows this sequential pathway:
 
 <div align="center">
 
@@ -121,140 +138,34 @@ Users can provide positive or negative feedback on generated responses; the appl
 
 ---
 
-## 🛠️ Technology Stack
+## 🖥️ Application Preview
 
-<div align="center">
+The following high-resolution screenshots demonstrate our live application running in production:
 
-| Layer | Technologies |
-|:---|:---|
-| Backend | Python · Flask · SQLAlchemy |
-| RAG / Orchestration | LangChain |
-| AI / LLM | OpenAI · OpenAI Embeddings |
-| Vector Search | Pinecone · Semantic Search |
-| PDF Processing | PyPDF · Recursive Text Splitting |
-| Background Processing | Celery · Redis |
-| Frontend | Svelte · SvelteKit · TypeScript · Tailwind CSS |
-| Visualization | Chart.js |
+### 📄 Document Upload
+Allows users to drag-and-drop or select PDF documents for asynchronous parsing and vector ingestion.
 
-</div>
+<p align="center">
+  <img src="./assets/document-upload.png" alt="Document upload interface" width="850"/>
+</p>
 
----
+### 💬 Conversational Retrieval
+Our main chat window supporting multi-turn conversation, real-time streamed token answers, and relative document citation references.
 
-## 🔬 Research Implementation
+<p align="center">
+  <img src="./assets/chat-interface.png" alt="Conversational retrieval interface" width="850"/>
+</p>
 
-This repository contains the practical implementation associated with the published research work.
+### 📊 Component Evaluation & Analytics
+Visualizes positive and negative user feedback over different language models, vector retrieves, and memory modules to mathematically determine the optimal RAG setup.
 
-> Kaur, B., Deepanshu, Narang, A., & Vashisht, P. (2026).
-> *Retrieval-Augmented Generation with Semantic Search: Document Retrieval System.*
-> AIP Conference Proceedings, 3426, 020016.
-> https://doi.org/10.1063/5.0327593
-
-The research explores semantic search and Retrieval-Augmented Generation for document retrieval and contextual question answering, including conversational interaction, retrieval configuration, response streaming, and user-feedback-based component evaluation.
-
-### Research Resources
-
-- 📄 [Read the Published Paper](https://doi.org/10.1063/5.0327593)
+<p align="center">
+  <img src="./assets/evaluation.png" alt="Component evaluation interface" width="850"/>
+</p>
 
 ---
 
-## ⚙️ Implementation Details
-
-### 1. Document Processing
-
-The application processes uploaded PDF documents through an asynchronous workflow:
-
-<div align="center">
-
-```mermaid
-graph TD
-    A["PDF"] --> B["PyPDF Extraction"]
-    B --> C["Recursive Text Splitting"]
-    C --> D["Metadata Assignment"]
-    D --> E["OpenAI Embeddings"]
-    E --> F["Pinecone Vector Store"]
-```
-
-</div>
-
-The configured chunking parameters are:
-
-<div align="center">
-
-| Parameter | Value |
-|:---|:---:|
-| Chunk size | 500 characters |
-| Chunk overlap | 100 characters |
-
-</div>
-
-### 2. Semantic Representation
-
-Each document chunk is transformed into a vector representation using OpenAI embeddings. These representations form the basis for similarity-based retrieval.
-
-### 3. Vector Retrieval
-
-Pinecone provides the vector-search layer, exposed through three retrieval configurations that vary how many chunks are pulled per query:
-
-<div align="center">
-
-| Configuration | Retrieval Depth |
-|:---:|:---:|
-| `pinecone_1` | k = 1 |
-| `pinecone_2` | k = 2 |
-| `pinecone_3` | k = 3 |
-
-</div>
-
-<div align="center">
-
-```mermaid
-graph TD
-    P[("Pinecone Vector Store")] --> R1["pinecone_1\nk = 1 chunk retrieved"]
-    P --> R2["pinecone_2\nk = 2 chunks retrieved"]
-    P --> R3["pinecone_3\nk = 3 chunks retrieved"]
-```
-
-</div>
-
-### 4. Conversational Generation
-
-The conversational pipeline can be summarized as:
-
-<div align="center">
-
-```mermaid
-graph TD
-    A["User Question"] --> B["Document Retriever"]
-    B --> C["Relevant Context +\nConversation History"]
-    C --> D["LangChain Retrieval Chain"]
-    D --> E["OpenAI Chat Model"]
-    E --> F["Streamed Answer"]
-```
-
-</div>
-
-### 5. Feedback-Based Evaluation
-
-The application records user feedback and maintains scores for configurable components: Language Model, Retriever, and Memory. This provides an experimental mechanism for comparing different RAG configurations based on observed user feedback.
-
-<div align="center">
-
-```mermaid
-graph TD
-    U["User Feedback\nPositive / Negative"] --> S["Component Score Update"]
-    S --> L["Language Model"]
-    S --> R["Retriever"]
-    S --> M["Memory"]
-    L --> C["Updated Comparison\nAcross Configurations"]
-    R --> C
-    M --> C
-```
-
-</div>
-
----
-
-## 📁 Project Structure
+## 🧩 Project Structure
 
 <details>
 <summary><strong>Click to expand the project structure</strong></summary>
@@ -312,6 +223,139 @@ README.md
 
 ---
 
+## 🛠️ Technology Stack
+
+<div align="center">
+
+| Layer | Technologies |
+|:---|:---|
+| Backend | Python · Flask · SQLAlchemy |
+| RAG / Orchestration | LangChain |
+| AI / LLM | OpenAI · OpenAI Embeddings |
+| Vector Search | Pinecone · Semantic Search |
+| PDF Processing | PyPDF · Recursive Text Splitting |
+| Background Processing | Celery · Redis |
+| Frontend | Svelte · SvelteKit · TypeScript · Tailwind CSS |
+| Visualization | Chart.js |
+
+</div>
+
+---
+
+## 🔬 Research Implementation
+
+This repository contains the practical implementation associated with the published research work.
+
+> Kaur, B., Deepanshu, Narang, A., & Vashisht, P. (2026).
+> *Retrieval-Augmented Generation with Semantic Search: Document Retrieval System.*
+> AIP Conference Proceedings, 3426, 020016.
+> https://doi.org/10.1063/5.0327593
+
+The research explores semantic search and Retrieval-Augmented Generation for document retrieval and contextual question answering, including conversational interaction, retrieval configuration, response streaming, and user-feedback-based component evaluation.
+
+### Research Resources
+
+- 📄 [Read the Published Paper](https://doi.org/10.1063/5.0327593)
+
+---
+
+## ⚙️ Implementation Details
+
+### 📄 Document Processing
+
+The application processes uploaded PDF documents through an asynchronous workflow:
+
+<div align="center">
+
+```mermaid
+graph TD
+    A[PDF] --> B[PyPDF Extraction]
+    B --> C[Recursive Text Splitting]
+    C --> D[Metadata Assignment]
+    D --> E[OpenAI Embeddings]
+    E --> F[Pinecone Vector Store]
+```
+
+</div>
+
+The configured chunking parameters are:
+
+<div align="center">
+
+| Parameter | Value |
+|:---|:---:|
+| Chunk size | 500 characters |
+| Chunk overlap | 100 characters |
+
+</div>
+
+### 🧠 Semantic Representation
+
+Each document chunk is transformed into a vector representation using OpenAI embeddings. These representations form the basis for similarity-based retrieval.
+
+### 🔎 Vector Retrieval
+
+Pinecone provides the vector-search layer, exposed through three retrieval configurations that vary how many chunks are pulled per query:
+
+<div align="center">
+
+| Configuration | Retrieval Depth |
+|:---:|:---:|
+| `pinecone_1` | k = 1 |
+| `pinecone_2` | k = 2 |
+| `pinecone_3` | k = 3 |
+
+</div>
+
+<div align="center">
+
+```mermaid
+graph TD
+    P[("Pinecone Vector Store")] --> R1["pinecone_1\nk = 1 chunk retrieved"]
+    P --> R2["pinecone_2\nk = 2 chunks retrieved"]
+    P --> R3["pinecone_3\nk = 3 chunks retrieved"]
+```
+
+</div>
+
+### 💬 Conversational Generation
+
+The conversational pipeline can be summarized as:
+
+<div align="center">
+
+```mermaid
+graph TD
+    A["User Question"] --> B["Document Retriever"]
+    B --> C["Relevant Context +\nConversation History"]
+    C --> D["LangChain Retrieval Chain"]
+    D --> E["OpenAI Chat Model"]
+    E --> F["Streamed Answer"]
+```
+
+</div>
+
+### ⭐ Feedback-Based Evaluation
+
+The application records user feedback and maintains scores for configurable components: Language Model, Retriever, and Memory. This provides an experimental mechanism for comparing different RAG configurations based on observed user feedback.
+
+<div align="center">
+
+```mermaid
+graph TD
+    U["User Feedback\nPositive / Negative"] --> S["Component Score Update"]
+    S --> L["Language Model"]
+    S --> R["Retriever"]
+    S --> M["Memory"]
+    L --> C["Updated Comparison\nAcross Configurations"]
+    R --> C
+    M --> C
+```
+
+</div>
+
+---
+
 ## 🚀 Getting Started
 
 ### Prerequisites
@@ -365,7 +409,7 @@ Initialize the database:
 flask --app app.web init-db
 ```
 
-###  Environment Configuration
+### 🔐 Environment Configuration
 
 Create a `.env` file in the project root:
 
@@ -382,7 +426,8 @@ PINECONE_ENV_NAME=your-pinecone-environment
 PINECONE_INDEX_NAME=your-pinecone-index
 ```
 
-
+> [!WARNING]
+> Never commit real API keys, passwords, service tokens, or other secrets to GitHub.
 
 ### ▶️ Run the Backend
 
@@ -487,6 +532,7 @@ Potential extensions include:
 
 ### 📚 Research · Engineering · Intelligent Retrieval
 
+*"Building intelligent software through research, engineering, and continuous learning."*
 
 ⭐ If you find my work interesting, feel free to explore my repositories or connect with me.
 
