@@ -217,7 +217,7 @@ This repository contains the practical implementation associated with our publis
 
 ## ⚙️ Ingestion & Retrieval Details
 
-### 📄 PDF Ingestion Pipeline
+###  PDF Ingestion Pipeline
 
 Uploaded PDFs are processed asynchronously in the background:
 
@@ -238,7 +238,7 @@ The chunking configuration uses:
 * **Chunk size**: 500 characters
 * **Chunk overlap**: 100 characters
 
-### 🔎 Vector Retrieval Configurations
+###  Vector Retrieval Configurations
 
 We configure Pinecone to return different numbers of chunks to evaluate search depth:
 
@@ -347,7 +347,6 @@ pie title Retriever Score Distribution
 
 ### 📚 Research · Engineering · Intelligent Retrieval
 
-*"Building intelligent software through research, engineering, and continuous learning."*
 
 ⭐ If you find my work interesting, feel free to explore my repositories or connect with me.
 
