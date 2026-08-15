@@ -1,6 +1,5 @@
 import { writable, get } from 'svelte/store';
 import { api, getErrorMessage } from '$api';
-import { dev } from '$app/environment';
 
 export type User =
 	| {
@@ -35,16 +34,6 @@ const getUser = async () => {
 		return user;
 	}
 	set({ loading: true });
-
-	// If running live on Vercel (Production), automatically bypass to showcase the UI!
-	if (!dev) {
-		const mockUser = { id: 'guest-123', email: 'guest.researcher@gmail.com' };
-		set({ user: mockUser, error: '' });
-		set({ loading: false });
-		return mockUser;
-	}
-
-	// Otherwise, run your actual database authentication locally
 	try {
 		const { data } = await api.get('/auth/user');
 		if (!data) {
@@ -64,15 +53,6 @@ const getUser = async () => {
 const signin = async (email: string, password: string) => {
 	set({ error: '', loading: true });
 
-	// If running live on Vercel (Production), bypass and allow any login credentials
-	if (!dev) {
-		const mockUser = { id: 'guest-123', email: email || 'guest.researcher@gmail.com' };
-		set({ user: mockUser, error: '' });
-		set({ loading: false });
-		return;
-	}
-
-	// Otherwise, run your actual database sign-in locally
 	try {
 		const { data } = await api.post('/auth/signin', { email, password });
 		set({
@@ -101,15 +81,6 @@ const signout = async () => {
 const signup = async (email: string, password: string) => {
 	set({ error: '', loading: true });
 
-	// If running live on Vercel (Production), bypass and allow any sign-up credentials
-	if (!dev) {
-		const mockUser = { id: 'guest-123', email: email || 'guest.researcher@gmail.com' };
-		set({ user: mockUser, error: '' });
-		set({ loading: false });
-		return;
-	}
-
-	// Otherwise, run your actual database sign-up locally
 	try {
 		const { data } = await api.post('/auth/signup', { email, password });
 		set({ user: data, error: '' });
